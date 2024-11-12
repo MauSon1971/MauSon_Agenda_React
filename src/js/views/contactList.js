@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import ContactForm from "../component/ContactForm.jsx";
 import ContactTable from "../component/ContactTable.jsx";
 import ContactCard from "../component/ContactCard.jsx";
+import ConfirmationModal from "../component/ConfirmationModal.jsx";
 import "../../styles/contactList.css";
 import { Context } from "../store/appContext.js";
 
@@ -10,75 +11,92 @@ const ContactList = () => {
     const { contactView } = useParams();
     const { actions, store } = useContext(Context);
 
-    const [isEditing, setIsEditing] = useState(false); 
-    const [currentContact, setCurrentContact] = useState(null);
+    const [isEditing, setIsEditing] = useState(false); //Estado para el modo editar y crear
+    const [currentContact, setCurrentContact] = useState(null); //Estado del contacto actual del user
+    const [contactToDelete, setContactToDelete] = useState(null); // Estado para el ID del contacto a borrar
+    const [showConfirmation, setShowConfirmation] = useState(false); // Estado para mostrar el modal de confirmación
 
     useEffect(() => {
         actions.verifyMauSonAgenda();
     }, []);
 
     useEffect(() => {
-        console.log("Contactos cargados desde el store:", store.contacts);//utilizo el mensaje en la consola para confirmar que se ha mofificado el store
+        console.log("Contactos cargados desde el store:", store.contacts);
     }, [store.contacts]);
 
-    const borrarConctacto = (id) => {
-        actions.deleteContact(id); //llamo a la función para borrar el contacto
+
+    useEffect(() => {
+        if (showConfirmation) {
+            const modal = new bootstrap.Modal(document.getElementById("confirmationModal"));
+            modal.show();
+        }
+    }, [showConfirmation]);
+
+    const borrarContacto = (id) => {
+        setContactToDelete(id); // Almacena el contacto que se desea borrar
+        setShowConfirmation(true); // Muestra el modal de confirmación
+    };
+
+    const handleDeleteContact = () => {
+        if (contactToDelete !== null) {
+            actions.deleteContact(contactToDelete); // Llama a la acción de borrar
+            setContactToDelete(null);
+            setShowConfirmation(false); // Cierra el modal
+        }
+    };
+
+    const cancelDelete = () => {
+        setContactToDelete(null);
+        setShowConfirmation(false); // Cierra el modal de confirmación
     };
 
     const editarContacto = (contact) => {
-        setCurrentContact(contact); // Establece el contacto a editar
-        setIsEditing(true); // Cambia a modo edición
-        const modal = new bootstrap.Modal(document.getElementById("contactModal")); //abro un nuevo modal y lo muestro
+        setCurrentContact(contact);
+        setIsEditing(true);
+        const modal = new bootstrap.Modal(document.getElementById("contactModal"));
         modal.show();
     };
-    //función que controla la actualización o creación de contactos
+
     const handleFormSubmit = (contactData) => {
         if (isEditing) {
             actions.updateContact(currentContact.id, contactData);
         } else {
             actions.createContact(contactData);
         }
-        setCurrentContact(null); //pongo a cero los valores de contactos
-        setIsEditing(true); // modo de crear
+        setCurrentContact(null);
+        setIsEditing(true);
     };
-
 
     return (
         <div>
-            <div className="d-flex justify-content-between">
             <h1>Contact List MauSon</h1>
-            {/* en el onclic cambio estado, inicializo el array y abro un nuevo modal */}
-            <button type="button" className="btn btn-primary" onClick={ () => {
-                setCurrentContact(null); //inicializo en cero contacto actual
-                setIsEditing(false); //modo crear
+            <button type="button" className="btn btn-primary" onClick={() => {
+                setCurrentContact(null);
+                setIsEditing(false);
                 const modal = new bootstrap.Modal(document.getElementById("contactModal"));
-                modal.show(); // muestro modal
-            }}
-            >
+                modal.show();
+            }}>
                 Crear Nuevo Contacto
             </button>
 
-            </div>
-            
             {contactView === "contactForm" ? (
                 <ContactForm />
             ) : contactView === "contactTable" ? (
                 <ContactTable contacts={store.contacts} />
             ) : (
                 <ul className="list-group mt-3">
-                    {/* //verifico que los datos que vienen sean array y no estén vacíos */}
                     {Array.isArray(store.contacts) && store.contacts.length > 0 ? (
                         store.contacts.map((contact) => (
                             <ContactCard
                                 key={contact.id}
                                 id={contact.id}
-                                imageUrl={contact.imageUrl || "https://via.placeholder.com/50"} // si no tengo imagen muestro una por defecto
+                                imageUrl={contact.imageUrl || "https://via.placeholder.com/50"}
                                 name={contact.name}
                                 address={contact.address}
                                 phone={contact.phone}
                                 email={contact.email}
-                                borrarContacto={() => borrarConctacto(contact.id)} // paso la función para borrar el contacto
-                                editarContacto={ () => editarContacto(contact)} //paso funcion editar al componente Card
+                                borrarContacto={() => borrarContacto(contact.id)} // Muestra la confirmación de borrado
+                                editarContacto={() => editarContacto(contact)}
                             />
                         ))
                     ) : (
@@ -86,13 +104,23 @@ const ContactList = () => {
                     )}
                 </ul>
             )}
-            
+
             {/* Modal Formulario */}
             <ContactForm
-            contact= {currentContact}
-            onSave= {handleFormSubmit}
-            isEditing={isEditing}
+                contact={currentContact}
+                onSave={handleFormSubmit}
+                isEditing={isEditing}
             />
+
+            {/* Modal de Confirmación de Borrado */}
+            {showConfirmation && (
+                <ConfirmationModal
+                    title="Confirmar Borrado"
+                    message="¿Estás seguro de que deseas borrar este contacto?"
+                    onConfirm={handleDeleteContact}
+                    onCancel={cancelDelete}
+                />
+            )}
         </div>
     );
 };

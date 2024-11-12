@@ -51,6 +51,15 @@
     display: flex;
     gap: 10px;
     align-items: center;
+    justify-content: center;
+}
+
+.contact-actions .btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px y 10px;
+    font-size: 0,9em;
 }
 
 /* Responsive layout for small screens */
