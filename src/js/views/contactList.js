@@ -15,10 +15,19 @@ const ContactList = () => {
     const [currentContact, setCurrentContact] = useState(null); //Estado del contacto actual del user
     const [contactToDelete, setContactToDelete] = useState(null); // Estado para el ID del contacto a borrar
     const [showConfirmation, setShowConfirmation] = useState(false); // Estado para mostrar el modal de confirmación
+    const [imagesAssociated, setImagesAssociated] = useState(false); // Estado de control para asociar imágenes solo una vez
 
     useEffect(() => {
         actions.verifyMauSonAgenda();
     }, []);
+
+    // Asocia imágenes una vez que los contactos y usuarios aleatorios están disponibles en el store
+    useEffect(() => {
+        if (store.contacts.length > 0 && store.randomUsers.length > 0 && !imagesAssociated) {
+            actions.associateRandomUserImages();
+            setImagesAssociated(true);
+        }
+    }, [store.contacts, store.randomUsers, imagesAssociated]);
 
     useEffect(() => {
         console.log("Contactos cargados desde el store:", store.contacts);
@@ -32,10 +41,14 @@ const ContactList = () => {
         }
     }, [showConfirmation]);
 
-    const borrarContacto = (id) => {
+    useEffect(() => {
+        console.log("Usuarios aleatorios en el store:", store.randomUsers);
+    }, [store.randomUsers]);
+
+    function borrarContacto(id) {
         setContactToDelete(id); // Almacena el contacto que se desea borrar
         setShowConfirmation(true); // Muestra el modal de confirmación
-    };
+    }
 
     const handleDeleteContact = () => {
         if (contactToDelete !== null) {
@@ -69,15 +82,22 @@ const ContactList = () => {
 
     return (
         <div>
-            <h1>Contact List MauSon</h1>
-            <button type="button" className="btn btn-primary" onClick={() => {
-                setCurrentContact(null);
-                setIsEditing(false);
-                const modal = new bootstrap.Modal(document.getElementById("contactModal"));
-                modal.show();
-            }}>
-                Crear Nuevo Contacto
-            </button>
+            <div className="d-flex justify-content-between align-items-center my-3">
+                <h1 className="mb-0">Contact List MauSon</h1>
+                <div className="ml-auto d-flex gap-2">
+
+                    <button className="btn btn-primary" onClick={() => actions.loadRandomUsers()}>Load Random Users</button>
+                    <button type="button" className="btn btn-primary" onClick={() => {
+                        setCurrentContact(null);
+                        setIsEditing(false);
+                        const modal = new bootstrap.Modal(document.getElementById("contactModal"));
+                        modal.show();
+                    }}>
+                        Crear Nuevo Contacto
+                    </button>
+
+                </div>
+            </div>
 
             {contactView === "contactForm" ? (
                 <ContactForm />

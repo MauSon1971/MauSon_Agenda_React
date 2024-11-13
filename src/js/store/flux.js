@@ -3,78 +3,8 @@ const getState = ({ getStore, getActions, setStore }) => {
         store: {
             agendas: [], // Inicializo vacío el arrray agendas
             contacts: [],//Inicializo vacio el array contacto
-            // contactsDemo: [
-            //     {
-            //         imageUrl: "https://bootdey.com/img/Content/avatar/avatar1.png",
-            //         name: "Debbie Schmidt",
-            //         position: "Frontend Developer",
-            //         email: "debbie.schmidt@example.com",
-            //         id: 125
-            //     },
-            //     {
-            //         imageUrl: "https://bootdey.com/img/Content/avatar/avatar2.png",
-            //         name: "Simon Ryles",
-            //         position: "Backend Developer",
-            //         email: "simon.ryles@example.com",
-            //         id: 132
-            //     },
-            //     {
-            //         imageUrl: "https://bootdey.com/img/Content/avatar/avatar3.png",
-            //         name: "Marion Walker",
-            //         position: "UI/UX Designer",
-            //         email: "marion.walker@example.com",
-            //         id: 98
-            //     },
-            //     {
-            //         imageUrl: "https://bootdey.com/img/Content/avatar/avatar4.png",
-            //         name: "Frederick White",
-            //         position: "Project Manager",
-            //         email: "frederick.white@example.com",
-            //         id: 45
-            //     },
-            //     {
-            //         imageUrl: "https://bootdey.com/img/Content/avatar/avatar5.png",
-            //         name: "Janice Morgan",
-            //         position: "Full Stack Developer",
-            //         email: "janice.morgan@example.com",
-            //         id: 207
-            //     },
-            //     {
-            //         imageUrl: "https://bootdey.com/img/Content/avatar/avatar6.png",
-            //         name: "Patrick Petty",
-            //         position: "Data Scientist",
-            //         email: "patrick.petty@example.com",
-            //         id: 89
-            //     },
-            //     {
-            //         imageUrl: "https://bootdey.com/img/Content/avatar/avatar7.png",
-            //         name: "Neal Womack",
-            //         position: "Machine Learning Engineer",
-            //         email: "neal.womack@example.com",
-            //         id: 53
-            //     },
-            //     {
-            //         imageUrl: "https://bootdey.com/img/Content/avatar/avatar8.png",
-            //         name: "Shanon Marvin",
-            //         position: "Cloud Architect",
-            //         email: "shanon.marvin@example.com",
-            //         id: 142
-            //     },
-            //     {
-            //         imageUrl: "https://bootdey.com/img/Content/avatar/avatar9.png",
-            //         name: "Mark Jones",
-            //         position: "Security Analyst",
-            //         email: "mark.jones@example.com",
-            //         id: 37
-            //     },
-            //     {
-            //         imageUrl: "https://bootdey.com/img/Content/avatar/avatar10.png",
-            //         name: "Marilyn Horton",
-            //         position: "DevOps Engineer",
-            //         email: "marilyn.horton@example.com",
-            //         id: 150
-            //     }
-            // ]
+            randomUsers: [],
+  
         },
         actions: {
             loadAgendas: async () => {
@@ -154,11 +84,11 @@ const getState = ({ getStore, getActions, setStore }) => {
                         method: "GET",
                         redirect: "follow"
                     });
-            
+
                     if (response.ok) {
                         const { contacts } = await response.json(); // Extrae el array de contactos
                         console.log("Contactos de MauSon cargados correctamente:", contacts);
-            
+
                         // Guardar solo el array de contactos en el store
                         setStore({ contacts });
                     } else {
@@ -173,22 +103,22 @@ const getState = ({ getStore, getActions, setStore }) => {
                 try {
                     const myHeaders = new Headers();
                     myHeaders.append("Content-Type", "application/json");
-            
+
                     const raw = JSON.stringify(contactData); // Serializa los datos del contacto para el body
-            
+
                     const requestOptions = {
                         method: "POST",
                         headers: myHeaders,
                         body: raw,
                         redirect: "follow"
                     };
-            
+
                     const response = await fetch("https://playground.4geeks.com/contact/agendas/MauSon/contacts", requestOptions);
-            
+
                     if (response.ok) {
                         const newContact = await response.json();
                         console.log("Nuevo contacto creado exitosamente:", newContact);
-            
+
                         // Agregar el nuevo contacto al store
                         const store = getStore();
                         setStore({ contacts: [...store.contacts, newContact] });
@@ -210,7 +140,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                     };
 
                     const response = await fetch(`https://playground.4geeks.com/contact/agendas/MauSon/contacts/${contactId}`, requestOptions);
-                    
+
                     if (response.ok) {
                         console.log(`Contacto con ID ${contactId} eliminado correctamente`);
 
@@ -236,7 +166,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                     };
 
                     const response = await fetch(`https://playground.4geeks.com/contact/agendas/MauSon/contacts/${contactId}`, requestOptions);
-                    
+
                     if (response.ok) {
                         console.log(`Contacto con ID ${contactId} eliminado correctamente`);
 
@@ -291,10 +221,94 @@ const getState = ({ getStore, getActions, setStore }) => {
                 } catch (error) {
                     console.error("Error en la solicitud de actualización:", error);
                 }
-            }
+            },
+
+            loadRandomUsers: async () => {
+                console.log("Intentando cargar usuarios aleatorios...");
+                try {
+                    const response = await fetch("https://randomuser.me/api/?inc=name,location,phone,email,picture&results=5");
+                    
+                    console.log("Estado de la respuesta:", response.status);
+                    if (!response.ok) throw new Error("Error en la carga de usuarios aleatorios");
+            
+                    const userData = await response.json();
+                    console.log("Datos obtenidos de la API:", userData);
+            
+                    if (Array.isArray(userData.results)) {
+                        setStore({ randomUsers: userData.results });
+                        console.log("Usuarios aleatorios cargados correctamente:", userData.results);
+                        await getActions().uploadRandomUserApi(); 
+                    } else {
+                        console.error("Respuesta inesperada: `results` no es un array", userData);
+                        setStore({ randomUsers: [] });
+                    }
+                } catch (error) {
+                    console.error("Error al cargar usuarios aleatorios:", error);
+                }
+            },
+
+            uploadRandomUserApi: async () => {
+                const store = getStore();
+                const randomUsers = store.randomUsers;
+            
+                if (!Array.isArray(randomUsers) || randomUsers.length === 0) {
+                    console.error("No hay usuarios en randomUsers para enviar a la API");
+                    return;
+                }
+            
+                for (const user of randomUsers) {
+                    const address = `${user.location.street.name} ${user.location.street.number}, ${user.location.city}, ${user.location.postcode}, ${user.location.state}, ${user.location.country}`;
+                    
+                    const contactData = {
+                        name: `${user.name.first} ${user.name.last}`,
+                        phone: user.phone,
+                        email: user.email,
+                        address: address,
+                        imageUrl: user.picture.large // Incluye la imagen del usuario
+                    };
+            
+                    try {
+                        const response = await fetch("https://playground.4geeks.com/contact/agendas/MauSon/contacts", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(contactData),
+                            redirect: "follow"
+                        });
+            
+                        if (response.ok) {
+                            const newContact = await response.json();
+                            console.log(`Contacto ${contactData.name} enviado correctamente a la API`);
+            
+                            // Añadir el nuevo contacto al store
+                            const updatedContacts = [...store.contacts, { ...contactData, id: newContact.id }];
+                            setStore({ contacts: updatedContacts });
+                        } else {
+                            console.error(`Error al enviar el contacto ${contactData.name}. Código de estado: ${response.status}`);
+                        }
+                    } catch (error) {
+                        console.error(`Error en la solicitud para enviar el contacto ${contactData.name}:`, error);
+                    }
+                }
+            },
+
+            associateRandomUserImages: () => {
+                const store = getStore();
+                const updatedContacts = store.contacts.map(contact => {
+                    const randomUser = store.randomUsers.find(user => user.email === contact.email);
+                    if (randomUser && randomUser.picture && randomUser.picture.large) {
+                        console.log(`Asignando imagen a ${contact.name}: ${randomUser.picture.large}`);
+                        return { ...contact, imageUrl: randomUser.picture.large };
+                    } else {
+                        console.warn(`No se encontró imagen para ${contact.name}`);
+                        return contact;
+                    }
+                });
+            
+                setStore({ contacts: updatedContacts });
+                console.log("Contactos con imágenes actualizadas:", updatedContacts);
+            },
 
 
-           
         }
     };
 };
