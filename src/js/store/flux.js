@@ -3,8 +3,9 @@ const getState = ({ getStore, getActions, setStore }) => {
         store: {
             agendas: [], // Inicializo vacío el arrray agendas
             contacts: [],//Inicializo vacio el array contacto
-            randomUsers: [],
-  
+            randomUsers: [], // inicializo el array de usuarios aleatorios
+            UserImages: [], //inicializo el array de imagenes aleatorias
+
         },
         actions: {
             loadAgendas: async () => {
@@ -16,10 +17,24 @@ const getState = ({ getStore, getActions, setStore }) => {
 
                     const agendaData = await response.json();
 
-                    // Accede a `agendaData.agendas` para obtener el array directamente
                     if (Array.isArray(agendaData.agendas)) {
                         setStore({ agendas: agendaData.agendas });
                         console.log("Agendas cargadas de la API correctamente:", agendaData.agendas);
+
+                        // busco la agenda MauSon
+                        const mausonAgenda = getStore().agendas.find(agenda => agenda.slug === "MauSon");
+
+                        if (mausonAgenda) {
+                            console.log("Agenda MauSon encontrada:", mausonAgenda);
+                            await getActions().loadContacts(); //carga los contactos de la agenda
+
+                        } else {
+                            console.log("Agenda MauSon no encontrada.");
+                            await getActions().createMauSonAgenda(); //crea la agenda MauSon
+                            await getActions().loadContacts(); //carga los contactos de la agenda
+
+                        }
+
                     } else {
                         console.error("Respuesta inesperada: `agendas` no es un array", agendaData);
                         setStore({ agendas: [] });
@@ -29,28 +44,6 @@ const getState = ({ getStore, getActions, setStore }) => {
                 }
             },
 
-            verifyMauSonAgenda: async () => {
-                //Veifica que la agenda MauSon existe y si no está la crea
-                const store = getStore();
-
-                // Si la Agenda no está en el Store la trae desde la API
-                if (!Array.isArray(store.agendas) || store.agendas.length === 0) {
-                    console.log("Agendas no encontradas en el store, cargando desde la API...");
-                    await getActions().loadAgendas();
-                }
-
-                // VerificO si `MauSon` existe en las agendas
-                const mausonAgenda = getStore().agendas.find(agenda => agenda.slug === "MauSon");
-
-                if (mausonAgenda) {
-                    console.log("Agenda MauSon encontrada:", mausonAgenda);
-                    await getActions().loadContacts(); //carga los contactos de la agenda
-                } else {
-                    console.log("Agenda MauSon no encontrada. Creando la agenda MauSon...");
-                    await getActions().createMauSonAgenda();
-                    await getActions().loadContacts(); //carga los contactos de la agenda
-                }
-            },
             createMauSonAgenda: async () => {
                 //Crea la agenda MauSon
                 try {
@@ -79,6 +72,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 
             loadContacts: async () => {
                 console.log("Cargando contactos de la agenda MauSon...");
+                const store = getStore();
+
                 try {
                     const response = await fetch("https://playground.4geeks.com/contact/agendas/MauSon/contacts", {
                         method: "GET",
@@ -89,8 +84,10 @@ const getState = ({ getStore, getActions, setStore }) => {
                         const { contacts } = await response.json(); // Extrae el array de contactos
                         console.log("Contactos de MauSon cargados correctamente:", contacts);
 
-                        // Guardar solo el array de contactos en el store
-                        setStore({ contacts });
+                        // Llama a assignRandomImages para asignar imágenes a los contactos
+                        const updatedContacts = getActions().assignRandomImages(contacts);
+                        setStore({ contacts: updatedContacts });
+                        console.log("Contactos actualizados con imágenes:", updatedContacts);
                     } else {
                         console.error(`Error al cargar contactos de MauSon. Código de estado: ${response.status}, Mensaje: ${response.statusText}`);
                     }
@@ -100,28 +97,32 @@ const getState = ({ getStore, getActions, setStore }) => {
             },
 
             createContact: async (contactData) => {
+                console.log("Creando el nuevo contacto...");
+                const store = getStore();
+            
                 try {
                     const myHeaders = new Headers();
                     myHeaders.append("Content-Type", "application/json");
-
+            
                     const raw = JSON.stringify(contactData); // Serializa los datos del contacto para el body
-
+            
                     const requestOptions = {
                         method: "POST",
                         headers: myHeaders,
                         body: raw,
                         redirect: "follow"
                     };
-
+            
                     const response = await fetch("https://playground.4geeks.com/contact/agendas/MauSon/contacts", requestOptions);
-
+            
                     if (response.ok) {
-                        const newContact = await response.json();
+                        let newContact = await response.json();
                         console.log("Nuevo contacto creado exitosamente:", newContact);
-
-                        // Agregar el nuevo contacto al store
-                        const store = getStore();
-                        setStore({ contacts: [...store.contacts, newContact] });
+            
+                        // Asigna una imagen aleatoria al nuevo contacto usando una variable auxiliar
+                        const [contactWithImage] = getActions().assignRandomImages([newContact]);
+            
+                        setStore({ contacts: [...store.contacts, contactWithImage] });
                     } else {
                         console.error(`Error al crear contacto. Código de estado: ${response.status}, Mensaje: ${response.statusText}`);
                         const errorDetails = await response.text();
@@ -158,31 +159,6 @@ const getState = ({ getStore, getActions, setStore }) => {
                 }
             },
 
-            deleteContact: async (contactId) => {
-                try {
-                    const requestOptions = {
-                        method: "DELETE",
-                        redirect: "follow"
-                    };
-
-                    const response = await fetch(`https://playground.4geeks.com/contact/agendas/MauSon/contacts/${contactId}`, requestOptions);
-
-                    if (response.ok) {
-                        console.log(`Contacto con ID ${contactId} eliminado correctamente`);
-
-                        // Filtra el contacto eliminado del store
-                        const store = getStore();
-                        const updatedContacts = store.contacts.filter(contact => contact.id !== contactId);
-                        setStore({ contacts: updatedContacts });
-                    } else {
-                        console.error(`Error al eliminar el contacto con ID ${contactId}. Código de estado: ${response.status}`);
-                        const errorDetails = await response.text();
-                        console.error("Detalles adicionales del error:", errorDetails);
-                    }
-                } catch (error) {
-                    console.error("Error en la solicitud para eliminar el contacto:", error);
-                }
-            },
 
             updateContact: async (id, updatedData) => {
                 const myHeaders = new Headers();
@@ -226,8 +202,8 @@ const getState = ({ getStore, getActions, setStore }) => {
             loadRandomUsers: async () => {
                 console.log("Intentando cargar usuarios aleatorios...");
                 try {
-                    const response = await fetch("https://randomuser.me/api/?inc=name,location,phone,email,picture&results=5");
-                    
+                    const response = await fetch("https://randomuser.me/api/?inc=name,location,phone,email,picture&results=3");
+            
                     console.log("Estado de la respuesta:", response.status);
                     if (!response.ok) throw new Error("Error en la carga de usuarios aleatorios");
             
@@ -237,7 +213,8 @@ const getState = ({ getStore, getActions, setStore }) => {
                     if (Array.isArray(userData.results)) {
                         setStore({ randomUsers: userData.results });
                         console.log("Usuarios aleatorios cargados correctamente:", userData.results);
-                        await getActions().uploadRandomUserApi(); 
+                        // Llama a uploadRandomUserApi solo cuando randomUsers está lleno
+                        await getActions().uploadRandomUserApi();
                     } else {
                         console.error("Respuesta inesperada: `results` no es un array", userData);
                         setStore({ randomUsers: [] });
@@ -247,6 +224,31 @@ const getState = ({ getStore, getActions, setStore }) => {
                 }
             },
 
+            loadRandomImgs: async () => {
+                console.log("Intentando cargar imagenes aleatorias...");
+
+                try {
+                    const response = await fetch("https://randomuser.me/api/?inc=picture&results=100");
+
+                    console.log("Estado de la respuesta:", response.status);
+                    if (!response.ok) throw new Error("Error en la carga de imágenes aleatoria");
+                    const randomImgData = await response.json();
+
+                    if (Array.isArray(randomImgData.results)) {
+                        setStore({ UserImages: randomImgData.results })
+                        console.log("Imagenes Aleatorias cargadas correctamente", randomImgData.results);
+
+                    } else {
+                        console.error("Respuesta inesperada: `results` no es un array", randomImgData);
+                        setStore({ UserImages: [] });
+                    }
+                } catch (error) {
+                    console.error("Error al cargar usuarios aleatorios:", error);
+                }
+
+            },
+
+            //Subir los contactatos aleatorios a la API Contact lis
             uploadRandomUserApi: async () => {
                 const store = getStore();
                 const randomUsers = store.randomUsers;
@@ -258,7 +260,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             
                 for (const user of randomUsers) {
                     const address = `${user.location.street.name} ${user.location.street.number}, ${user.location.city}, ${user.location.postcode}, ${user.location.state}, ${user.location.country}`;
-                    
+            
                     const contactData = {
                         name: `${user.name.first} ${user.name.last}`,
                         phone: user.phone,
@@ -291,23 +293,17 @@ const getState = ({ getStore, getActions, setStore }) => {
                 }
             },
 
-            associateRandomUserImages: () => {
+            assignRandomImages: (contacts) => {
                 const store = getStore();
-                const updatedContacts = store.contacts.map(contact => {
-                    const randomUser = store.randomUsers.find(user => user.email === contact.email);
-                    if (randomUser && randomUser.picture && randomUser.picture.large) {
-                        console.log(`Asignando imagen a ${contact.name}: ${randomUser.picture.large}`);
-                        return { ...contact, imageUrl: randomUser.picture.large };
-                    } else {
-                        console.warn(`No se encontró imagen para ${contact.name}`);
-                        return contact;
-                    }
+                // Asigna una imagen aleatoria de UserImages a cada contacto en el array de contactos
+                return contacts.map(contact => {
+                    const randomImage = store.UserImages[Math.floor(Math.random() * store.UserImages.length)];
+                    return {
+                        ...contact,
+                        imageUrl: randomImage?.picture?.large || "https://via.placeholder.com/50"
+                    };
                 });
-            
-                setStore({ contacts: updatedContacts });
-                console.log("Contactos con imágenes actualizadas:", updatedContacts);
-            },
-
+            }
 
         }
     };

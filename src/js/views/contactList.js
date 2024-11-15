@@ -4,6 +4,7 @@ import ContactForm from "../component/ContactForm.jsx";
 import ContactTable from "../component/ContactTable.jsx";
 import ContactCard from "../component/ContactCard.jsx";
 import ConfirmationModal from "../component/ConfirmationModal.jsx";
+import { FaUserPlus, FaDownload } from "react-icons/fa6";
 import "../../styles/contactList.css";
 import { Context } from "../store/appContext.js";
 
@@ -15,23 +16,10 @@ const ContactList = () => {
     const [currentContact, setCurrentContact] = useState(null); //Estado del contacto actual del user
     const [contactToDelete, setContactToDelete] = useState(null); // Estado para el ID del contacto a borrar
     const [showConfirmation, setShowConfirmation] = useState(false); // Estado para mostrar el modal de confirmación
-    const [imagesAssociated, setImagesAssociated] = useState(false); // Estado de control para asociar imágenes solo una vez
 
     useEffect(() => {
-        actions.verifyMauSonAgenda();
+        actions.loadContacts();
     }, []);
-
-    // Asocia imágenes una vez que los contactos y usuarios aleatorios están disponibles en el store
-    useEffect(() => {
-        if (store.contacts.length > 0 && store.randomUsers.length > 0 && !imagesAssociated) {
-            actions.associateRandomUserImages();
-            setImagesAssociated(true);
-        }
-    }, [store.contacts, store.randomUsers, imagesAssociated]);
-
-    useEffect(() => {
-        console.log("Contactos cargados desde el store:", store.contacts);
-    }, [store.contacts]);
 
 
     useEffect(() => {
@@ -86,14 +74,14 @@ const ContactList = () => {
                 <h1 className="mb-0">Contact List MauSon</h1>
                 <div className="ml-auto d-flex gap-2">
 
-                    <button className="btn btn-primary" onClick={() => actions.loadRandomUsers()}>Load Random Users</button>
-                    <button type="button" className="btn btn-primary" onClick={() => {
+                    <button type="button" className="circle-button circle-button-blue"  onClick={() => actions.loadRandomUsers()}> <FaDownload/> </button>
+                    <button type="button" className="circle-button circle-button-green" onClick={() => {
                         setCurrentContact(null);
                         setIsEditing(false);
                         const modal = new bootstrap.Modal(document.getElementById("contactModal"));
                         modal.show();
                     }}>
-                        Crear Nuevo Contacto
+                        <FaUserPlus/>
                     </button>
 
                 </div>
@@ -136,7 +124,7 @@ const ContactList = () => {
             {showConfirmation && (
                 <ConfirmationModal
                     title="Confirmar Borrado"
-                    message="¿Estás seguro de que deseas borrar este contacto?"
+                    message="¿Deseas borrar este contacto?"
                     onConfirm={handleDeleteContact}
                     onCancel={cancelDelete}
                 />

@@ -1,6 +1,7 @@
 import React from "react";
 import { FaMapMarkerAlt, FaPhoneAlt } from "react-icons/fa";
-import { AiTwotoneMail, AiTwotoneEdit, AiOutlineDelete } from "react-icons/ai";
+import { AiTwotoneMail } from "react-icons/ai";
+import { FaTrashCan, FaMarker } from "react-icons/fa6";
 import "../../styles/contactCard.css";
 
 const ContactCard = ({ id, imageUrl, name, address, phone, email, borrarContacto, editarContacto }) => {
@@ -19,12 +20,14 @@ const ContactCard = ({ id, imageUrl, name, address, phone, email, borrarContacto
                 <span className="contact-text"> {email}</span>
             </div>
             <div className="contact-actions">
-                <button className="btn btn-primary btn-sm me-2" onClick={() => editarContacto(id)}>
-                    <AiTwotoneEdit /> Editar
-                </button>
-                <button className="btn btn-danger btn-sm" onClick={() => borrarContacto(id)}>
-                    <AiOutlineDelete /> Borrar
-                </button>
+                <FaMarker
+                    className="FaMarker-icon"
+                    onClick={() => editarContacto(id)}
+                />
+                <FaTrashCan
+                    className="FaTrashCan-icon"
+                    onClick={() => borrarContacto(id)}
+                />
             </div>
         </li>
     );

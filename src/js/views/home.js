@@ -7,11 +7,5 @@ export const Home = () => (
 	<div className="text-center mt-5">
 		<h1>MauSon Contact List</h1>
 
-		<Link to="/contactList/contactView">
-		<button className="btn btn-secondary">Agenda</button>
-		</Link>
-
-
-
 	</div>
 );
