@@ -1,8 +1,10 @@
 import React, { useContext } from "react";
 import { Context } from "../store/appContext";
+import { AiTwotoneEdit, AiOutlineDelete } from "react-icons/ai";
+import { FaTrashCan, FaMarker } from "react-icons/fa6";
 import "../../styles/contactTable.css";
 
-const ContactTable = ({ contacts = [] }) => {
+const ContactTable = ({ contacts, borrarContacto, editarContacto }) => {
     //Obtengo la lista de contactos desde Store
     const { store } = useContext(Context);
     console.log("Contactos en el store:", store.contacts);
@@ -13,76 +15,70 @@ const ContactTable = ({ contacts = [] }) => {
     }
 
     return (
-        <div className="container">
-            <div className="row align-items-center">
-                <div className="col-md-6">
-                    <div className="mb-3">
-                        <h5 className="card-title">
-                            Contact List <span className="text-muted fw-normal ms-2">({store.contacts.length})</span>
-                        </h5>
-                    </div>
-                </div>
-                {/* Estructura adicional para botones y opciones */}
-            </div>
-            <div className="row">
-                <div className="col-lg-12">
-                    <div className="table-responsive">
-                        <table className="table project-list-table table-nowrap align-middle table-borderless">
-                            <thead>
-                                <tr>
-                                    <th scope="col" className="ps-4" style={{ width: "50px" }}>
-                                        <div className="form-check font-size-16">
-                                            <input type="checkbox" className="form-check-input" id="contactUserCheckAll" />
-                                            <label className="form-check-label" htmlFor="contactUserCheckAll"></label>
+        <div className="container-xl">
+            <div className="table-responsive">
+                <div className="table-wrapper">
+                    <table className="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <span className="custom-checkbox">
+                                        <input type="checkbox" id="selectAll" />
+                                        <label htmlFor="selectAll"></label>
+                                    </span>
+                                </th>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Address</th>
+                                <th>Phone</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {contacts.map((contact) => (
+                                <tr key={contact.id}>
+                                    <td>
+                                        <span className="custom-checkbox">
+                                            <input type="checkbox" id={`checkbox${contact.id}`} name="options[]" value="1" />
+                                            <label htmlFor={`checkbox${contact.id}`}></label>
+                                        </span>
+                                    </td>
+                                    <td className="contact-image-container"><img src={contact.imageUrl} alt={contact.name} className="contact-image" /></td>
+                                    <td>{contact.name}</td>
+                                    <td>{contact.email}</td>
+                                    <td>{contact.address}</td>
+                                    <td>{contact.phone}</td>
+                                    <td>
+                                        <div className="contact-actions">
+                                            <FaMarker
+                                                className="FaMarker-icon"
+                                                onClick={() => editarContacto(contact)}
+                                            />
+                                            <FaTrashCan
+                                                className="FaTrashCan-icon"
+                                                onClick={() => borrarContacto(contact.id)}
+                                            />
                                         </div>
-                                    </th>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Position</th>
-                                    <th scope="col">Email</th>
-                                    <th scope="col">Projects</th>
-                                    <th scope="col" style={{ width: "200px" }}>Action</th>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {store.contacts.map((contact, index) => (
-                                    <tr key={index}>
-                                        <th scope="row" className="ps-4">
-                                            <div className="form-check font-size-16">
-                                                <input type="checkbox" className="form-check-input" id={`contactUserCheck${index}`} />
-                                                <label className="form-check-label" htmlFor={`contactUserCheck${index}`}></label>
-                                            </div>
-                                        </th>
-                                        <td>
-                                            <img src={contact.imageUrl} alt={contact.name} className="avatar-sm rounded-circle me-2" />
-                                            <a href="#" className="text-body">{contact.name}</a>
-                                        </td>
-                                        <td>
-                                            <span className="badge badge-soft-info mb-0">{contact.position}</span>
-                                        </td>
-                                        <td>{contact.email}</td>
-                                        <td>{contact.projects}</td>
-                                        <td>
-                                            <ul className="list-inline mb-0">
-                                                <li className="list-inline-item">
-                                                    <a href="#" className="px-2 text-primary" data-bs-toggle="tooltip" title="Edit">
-                                                        <i className="bx bx-pencil font-size-18"></i>
-                                                    </a>
-                                                </li>
-                                                <li className="list-inline-item">
-                                                    <a href="#" className="px-2 text-danger" data-bs-toggle="tooltip" title="Delete">
-                                                        <i className="bx bx-trash-alt font-size-18"></i>
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                            ))}
+                        </tbody>
+                    </table>
+                    <div className="clearfix">
+                        <div className="hint-text">Showing <b>{contacts.length}</b> out of <b>{contacts.length}</b> entries</div>
+                        <ul className="pagination">
+                            <li className="page-item disabled"><a href="#">Previous</a></li>
+                            <li className="page-item"><a href="#" className="page-link">1</a></li>
+                            <li className="page-item"><a href="#" className="page-link">2</a></li>
+                            <li className="page-item active"><a href="#" className="page-link">3</a></li>
+                            <li className="page-item"><a href="#" className="page-link">4</a></li>
+                            <li className="page-item"><a href="#" className="page-link">5</a></li>
+                            <li className="page-item"><a href="#" className="page-link">Next</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
-            {/* Paginación y pie de tabla */}
         </div>
     );
 };

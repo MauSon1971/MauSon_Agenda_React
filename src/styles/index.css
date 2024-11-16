@@ -3,25 +3,35 @@
 */
 
 .circle-button {
-  width: 50px;                /* Tamaño del botón */
+  width: 50px;
   height: 50px;
-  color: white;               /* Color del texto */
-  font-size: 1.8em;           /* Tamaño del símbolo */
-  border: none;               /* Sin borde */
-  border-radius: 50%;         /* Hacer el botón circular */
   display: flex;
-  align-items: center;        /* Centrar verticalmente */
-  justify-content: center;    /* Centrar horizontalmente */
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  font-size: 1.5rem; /* Tamaño del icono */
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Sombra opcional */
-  transition: background-color 0.3s; /* Efecto de transición */
-  outline: none;              /* Quitar el borde al hacer click */
-  appearance: none;           /* Remueve estilos predeterminados del navegador */
+  border: 1px solid #ccc; /* Borde gris */
+  transition: background-color 0.3s, color 0.3s;
+  background-color: white; /* Fondo blanco */
+  color: #6c757d; /* Gris oscuro para los iconos */
 }
+
+.circle-button:hover {
+  background-color: #f8f9fa; /* Gris claro al hacer hover */
+  color: #495057; /* Gris más oscuro al hacer hover */
+}
+
+.circle-button.active {
+  border: 2px solid black; /* Resalta el botón activo */
+}
+
 
 /* Estilos específicos para el botón verde */
 .circle-button-green {
   background-color: #28a745;      /* Color verde */
+  color:#fffdfd;
+
 }
 
 .circle-button-green:hover {
@@ -31,6 +41,7 @@
 /* Estilos específicos para el botón azul */
 .circle-button-blue {
   background-color: #007bff;      /* Color azul */
+  color:#fffdfd;
 }
 
 .circle-button-blue:hover {
