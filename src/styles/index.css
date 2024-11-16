@@ -1,3 +1,77 @@
 /* 
     General Styles
 */
+
+.circle-button {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  font-size: 1.5rem; /* Tamaño del icono */
+  cursor: pointer;
+  border: 1px solid #ccc; /* Borde gris */
+  transition: background-color 0.3s, color 0.3s;
+  background-color: white; /* Fondo blanco */
+  color: #6c757d; /* Gris oscuro para los iconos */
+}
+
+.circle-button:hover {
+  background-color: #f8f9fa; /* Gris claro al hacer hover */
+  color: #495057; /* Gris más oscuro al hacer hover */
+}
+
+.circle-button.active {
+  border: 2px solid black; /* Resalta el botón activo */
+}
+
+
+/* Estilos específicos para el botón verde */
+.circle-button-green {
+  background-color: #28a745;      /* Color verde */
+  color:#fffdfd;
+
+}
+
+.circle-button-green:hover {
+  background-color: #218838;      /* Verde más oscuro al hacer hover */
+}
+
+/* Estilos específicos para el botón azul */
+.circle-button-blue {
+  background-color: #007bff;      /* Color azul */
+  color:#fffdfd;
+}
+
+.circle-button-blue:hover {
+  background-color: #0069d9;      /* Azul más oscuro al hacer hover */
+}
+
+/* Profile Picture */
+.profile-pic{
+    display: inline-block;
+    vertical-align: middle;
+     width: 50px;
+     height: 50px;
+     overflow: hidden;
+    border-radius: 50%;
+ }
+ 
+ .profile-pic img{
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+ }
+ .profile-menu .dropdown-menu {
+   right: 0;
+   left: unset;
+ }
+ .profile-menu .fa-fw {
+   margin-right: 10px;
+ }
+ 
+ .toggle-change::after {
+   border-top: 0;
+   border-bottom: 0.3em solid;
+ }

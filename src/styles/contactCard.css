@@ -1,0 +1,91 @@
+.contact-card {
+    width: 600px; /* Ancho fijo para pantallas md y lg */
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 10px auto;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-direction: row;
+}
+
+.contact-image-container {
+    flex-shrink: 0;
+}
+
+.contact-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.contact-info {
+    flex: 1;
+    font-size: 0.9em;
+}
+
+.contact-name {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.contact-detail {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.contact-icon {
+    margin-right: 8px;
+    color: #6c757d;
+}
+
+.contact-text {
+    color: #6c757d;
+}
+
+.contact-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+.contact-actions .btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px y 10px;
+    font-size: 0,9em;
+}
+
+/* Responsive layout for small screens */
+@media (max-width: 576px) {
+    .contact-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        width: 100%; /* Ajusta al ancho de la pantalla en dispositivos pequeños */
+    }
+
+    .contact-info, .contact-actions {
+        width: 100%;
+    }
+}
+
+.FaMarker-icon {
+    color: blue;
+    cursor: pointer;
+    font-size: 1.4em;
+    margin-right: 10px;
+}
+
+.FaTrashCan-icon {
+    color: red;
+    cursor: pointer;
+    font-size: 1.4em;
+    margin-right: 10px;
+}
