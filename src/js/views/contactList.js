@@ -7,7 +7,7 @@ import ConfirmationModal from "../component/ConfirmationModal.jsx";
 import "../../styles/contactList.css";
 import { Context } from "../store/appContext.js";
 
-const ContactList = () => {
+export const ContactList = () => {
     const { actions, store } = useContext(Context);
     const [isEditing, setIsEditing] = useState(false); // Estado para controlar modo eidtar y crear.
     const [currentContact, setCurrentContact] = useState(null); // estado para traer el contacto actual al modo editar
@@ -18,11 +18,15 @@ const ContactList = () => {
     useEffect(() => {
         actions.loadContacts();
     }, []);
-
-    // Verificación de existencia de contactos
-    if (!store.contacts || store.contacts.length === 0) {
+    
+    console.log("CONTACTS", store.contact)
+    useEffect(() => {
+     // Verificación de existencia de contactos
+     if (!store.contacts || store.contacts.length === 0) {
         return <p>No Hay Contactos Disponibles</p>;
     }
+    }, [store.contact]);
+
 
     // Abrir modal para editar contacto
     const openEditModal = (contact) => {
@@ -124,4 +128,3 @@ const ContactList = () => {
     );
 };
 
-export { ContactList };
